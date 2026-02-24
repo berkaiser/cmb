@@ -1,0 +1,144 @@
+import sys
+
+# --- Provided Data and Functions ---
+
+template = "LLALWGPDPAAAFVNQHLCGSHLVEALYLVCGERGFFYTPKTRREAEDLQVGQVELGGGPGAGSLQPLALEGSLQKRGIVEQCCTSICSLYQLENYCN"
+target = "MALWMRLLPLLALLALWGPDPVPAFVNQHLCGSHLVEALYLVCGERGFFYTPKTRREAEDPQVGQVELGGGPGTGSLQPLALEGSLQKRGIVEQCCTSICSLYQLENYCN"
+gap = -2
+
+PAM250_dict = {'AA': 2.0, 'AR': -2.0, 'AN': 0.0, 'AD': 0.0, 'AC': -2.0, 'AQ': 0.0, 'AE': 0.0, 'AG': 1.0, 'AH': -1.0, 'AI': -1.0, 'AL': -2.0, 'AK': -1.0, 'AM': -1.0, 'AF': -4.0, 'AP': 1.0, 'AS': 1.0, 'AT': 1.0, 'AW': -6.0, 'AY': -3.0, 'AV': 0.0, 'RA': -2.0, 'RR': 6.0, 'RN': 0.0, 'RD': -1.0, 'RC': -4.0, 'RQ': 1.0, 'RE': -1.0, 'RG': -3.0, 'RH': 2.0, 'RI': -2.0, 'RL': -3.0, 'RK': 3.0, 'RM': 0.0, 'RF': -4.0, 'RP': 0.0, 'RS': 0.0, 'RT': -1.0, 'RW': 2.0, 'RY': -4.0, 'RV': -2.0, 'NA': 0.0, 'NR': 0.0, 'NN': 2.0, 'ND': 2.0, 'NC': -4.0, 'NQ': 1.0, 'NE': 1.0, 'NG': 0.0, 'NH': 2.0, 'NI': -2.0, 'NL': -3.0, 'NK': 1.0, 'NM': -2.0, 'NF': -4.0, 'NP': -1.0, 'NS': 1.0, 'NT': 0.0, 'NW': -4.0, 'NY': -2.0, 'NV': -2.0, 'DA': 0.0, 'DR': -1.0, 'DN': 2.0, 'DD': 4.0, 'DC': -5.0, 'DQ': 2.0, 'DE': 3.0, 'DG': 1.0, 'DH': 1.0, 'DI': -2.0, 'DL': -4.0, 'DK': 0.0, 'DM': -3.0, 'DF': -6.0, 'DP': -1.0, 'DS': 0.0, 'DT': 0.0, 'DW': -7.0, 'DY': -4.0, 'DV': -2.0, 'CA': -2.0, 'CR': -4.0, 'CN': -4.0, 'CD': -5.0, 'CC': 12.0, 'CQ': -5.0, 'CE': -5.0, 'CG': -3.0, 'CH': -3.0, 'CI': -2.0, 'CL': -6.0, 'CK': -5.0, 'CM': -5.0, 'CF': -4.0, 'CP': -3.0, 'CS': 0.0, 'CT': -2.0, 'CW': -8.0, 'CY': 0.0, 'CV': -2.0, 'QA': 0.0, 'QR': 1.0, 'QN': 1.0, 'QD': 2.0, 'QC': -5.0, 'QQ': 4.0, 'QE': 2.0, 'QG': -1.0, 'QH': 3.0, 'QI': -2.0, 'QL': -2.0, 'QK': 1.0, 'QM': -1.0, 'QF': -5.0, 'QP': 0.0, 'QS': -1.0, 'QT': -1.0, 'QW': -5.0, 'QY': -4.0, 'QV': -2.0, 'EA': 0.0, 'ER': -1.0, 'EN': 1.0, 'ED': 3.0, 'EC': -5.0, 'EQ': 2.0, 'EE': 4.0, 'EG': 0.0, 'EH': 1.0, 'EI': -2.0, 'EL': -3.0, 'EK': 0.0, 'EM': -2.0, 'EF': -5.0, 'EP': -1.0, 'ES': 0.0, 'ET': 0.0, 'EW': -7.0, 'EY': -4.0, 'EV': -2.0, 'GA': 1.0, 'GR': -3.0, 'GN': 0.0, 'GD': 1.0, 'GC': -3.0, 'GQ': -1.0, 'GE': 0.0, 'GG': 5.0, 'GH': -2.0, 'GI': -3.0, 'GL': -4.0, 'GK': -2.0, 'GM': -3.0, 'GF': -5.0, 'GP': -1.0, 'GS': 1.0, 'GT': 0.0, 'GW': -7.0, 'GY': -5.0, 'GV': -1.0, 'HA': -1.0, 'HR': 2.0, 'HN': 2.0, 'HD': 1.0, 'HC': -3.0, 'HQ': 3.0, 'HE': 1.0, 'HG': -2.0, 'HH': 6.0, 'HI': -2.0, 'HL': -2.0, 'HK': 0.0, 'HM': -2.0, 'HF': -2.0, 'HP': 0.0, 'HS': -1.0, 'HT': -1.0, 'HW': -3.0, 'HY': 0.0, 'HV': -2.0, 'IA': -1.0, 'IR': -2.0, 'IN': -2.0, 'ID': -2.0, 'IC': -2.0, 'IQ': -2.0, 'IE': -2.0, 'IG': -3.0, 'IH': -2.0, 'II': 5.0, 'IL': 2.0, 'IK': -2.0, 'IM': 2.0, 'IF': 1.0, 'IP': -2.0, 'IS': -1.0, 'IT': 0.0, 'IW': -5.0, 'IY': -1.0, 'IV': 4.0, 'LA': -2.0, 'LR': -3.0, 'LN': -3.0, 'LD': -4.0, 'LC': -6.0, 'LQ': -2.0, 'LE': -3.0, 'LG': -4.0, 'LH': -2.0, 'LI': 2.0, 'LL': 6.0, 'LK': -3.0, 'LM': 4.0, 'LF': 2.0, 'LP': -3.0, 'LS': -3.0, 'LT': -2.0, 'LW': -2.0, 'LY': -1.0, 'LV': 2.0, 'KA': -1.0, 'KR': 3.0, 'KN': 1.0, 'KD': 0.0, 'KC': -5.0, 'KQ': 1.0, 'KE': 0.0, 'KG': -2.0, 'KH': 0.0, 'KI': -2.0, 'KL': -3.0, 'KK': 5.0, 'KM': 0.0, 'KF': -5.0, 'KP': -1.0, 'KS': 0.0, 'KT': 0.0, 'KW': -3.0, 'KY': -4.0, 'KV': -2.0, 'MA': -1.0, 'MR': 0.0, 'MN': -2.0, 'MD': -3.0, 'MC': -5.0, 'MQ': -1.0, 'ME': -2.0, 'MG': -3.0, 'MH': -2.0, 'MI': 2.0, 'ML': 4.0, 'MK': 0.0, 'MM': 6.0, 'MF': 0.0, 'MP': -2.0, 'MS': -2.0, 'MT': -1.0, 'MW': -4.0, 'MY': -2.0, 'MV': 2.0, 'FA': -4.0, 'FR': -4.0, 'FN': -4.0, 'FD': -6.0, 'FC': -4.0, 'FQ': -5.0, 'FE': -5.0, 'FG': -5.0, 'FH': -2.0, 'FI': 1.0, 'FL': 2.0, 'FK': -5.0, 'FM': 0.0, 'FF': 9.0, 'FP': -5.0, 'FS': -3.0, 'FT': -3.0, 'FW': 0.0, 'FY': 7.0, 'FV': -1.0, 'PA': 1.0, 'PR': 0.0, 'PN': -1.0, 'PD': -1.0, 'PC': -3.0, 'PQ': 0.0, 'PE': -1.0, 'PG': -1.0, 'PH': 0.0, 'PI': -2.0, 'PL': -3.0, 'PK': -1.0, 'PM': -2.0, 'PF': -5.0, 'PP': 6.0, 'PS': 1.0, 'PT': 0.0, 'PW': -6.0, 'PY': -5.0, 'PV': -1.0, 'SA': 1.0, 'SR': 0.0, 'SN': 1.0, 'SD': 0.0, 'SC': 0.0, 'SQ': -1.0, 'SE': 0.0, 'SG': 1.0, 'SH': -1.0, 'SI': -1.0, 'SL': -3.0, 'SK': 0.0, 'SM': -2.0, 'SF': -3.0, 'SP': 1.0, 'SS': 2.0, 'ST': 1.0, 'SW': -2.0, 'SY': -3.0, 'SV': -1.0, 'TA': 1.0, 'TR': -1.0, 'TN': 0.0, 'TD': 0.0, 'TC': -2.0, 'TQ': -1.0, 'TE': 0.0, 'TG': 0.0, 'TH': -1.0, 'TI': 0.0, 'TL': -2.0, 'TK': 0.0, 'TM': -1.0, 'TF': -3.0, 'TP': 0.0, 'TS': 1.0, 'TT': 3.0, 'TW': -5.0, 'TY': -3.0, 'TV': 0.0, 'WA': -6.0, 'WR': 2.0, 'WN': -4.0, 'WD': -7.0, 'WC': -8.0, 'WQ': -5.0, 'WE': -7.0, 'WG': -7.0, 'WH': -3.0, 'WI': -5.0, 'WL': -2.0, 'WK': -3.0, 'WM': -4.0, 'WF': 0.0, 'WP': -6.0, 'WS': -2.0, 'WT': -5.0, 'WW': 17.0, 'WY': 0.0, 'WV': -6.0, 'YA': -3.0, 'YR': -4.0, 'YN': -2.0, 'YD': -4.0, 'YC': 0.0, 'YQ': -4.0, 'YE': -4.0, 'YG': -5.0, 'YH': 0.0, 'YI': -1.0, 'YL': -1.0, 'YK': -4.0, 'YM': -2.0, 'YF': 7.0, 'YP': -5.0, 'YS': -3.0, 'YT': -3.0, 'YW': 0.0, 'YY': 10.0, 'YV': -2.0, 'VA': 0.0, 'VR': -2.0, 'VN': -2.0, 'VD': -2.0, 'VC': -2.0, 'VQ': -2.0, 'VE': -2.0, 'VG': -1.0, 'VH': -2.0, 'VI': 4.0, 'VL': 2.0, 'VK': -2.0, 'VM': 2.0, 'VF': -1.0, 'VP': -1.0, 'VS': -1.0, 'VT': 0.0, 'VW': -6.0, 'VY': -2.0, 'VV': 4.0}
+
+def global_backtrack(seq1, seq2, F, P):
+    """
+    Starts from the bottom-right of the matrix and follows pointers 
+    back to the top-left (0,0) to reconstruct the full alignment.
+    """
+    aln1, aln2 = '', ''
+    i, j = len(seq1), len(seq2)
+    while P[i][j] != '': # Continue until the starting edge is reached
+        if P[i][j] == 'd':    # 'd' = Diagonal (Match/Mismatch)
+            aln1 = seq1[i-1] + aln1
+            aln2 = seq2[j-1] + aln2
+            i -= 1
+            j -= 1
+        elif P[i][j] == 'l':  # 'l' = Left (Gap in seq1)
+            aln1 = '-' + aln1
+            aln2 = seq2[j-1] + aln2
+            j -= 1
+        elif P[i][j] == 'u':  # 'u' = Up (Gap in seq2)
+            aln1 = seq1[i-1] + aln1
+            aln2 = '-' + aln2
+            i -= 1
+    return aln1, aln2, F[len(seq1)][len(seq2)]
+
+def local_backtrack(seq1, seq2, F, P):
+    """
+    Starts from the HIGHEST score anywhere in the matrix and 
+    follows pointers back until it hits a score of 0.
+    """
+    aln1, aln2 = '', ''
+    start_i, start_j, score = 0, 0, 0
+    # Find the maximum value in the entire F matrix
+    for i in range(len(seq1)+1):
+        for j in range(len(seq2)+1):
+            if F[i][j] > score:
+                start_i, start_j, score = i, j, F[i][j]
+    
+    i, j = start_i, start_j
+    while P[i][j] != '': # Stop when pointer is empty (where score was 0)
+        if P[i][j] == 'd':
+            aln1 = seq1[i-1] + aln1
+            aln2 = seq2[j-1] + aln2
+            i -= 1
+            j -= 1
+        elif P[i][j] == 'l':
+            aln1 = '-' + aln1
+            aln2 = seq2[j-1] + aln2
+            j -= 1
+        elif P[i][j] == 'u':
+            aln1 = seq1[i-1] + aln1
+            aln2 = '-' + aln2
+            i -= 1
+    return aln1, aln2, score
+
+# --- Main Logic Functions ---
+
+def align(seq1, seq2, matrix, gap, globloc):
+    """
+    Fills the Score Matrix (F) and Pointer Matrix (P).
+    F[i][j] stores the best possible score to reach that point.
+    """
+    n, m = len(seq1), len(seq2)
+    # Initialize matrices with zeros
+    F = [[0 for _ in range(m + 1)] for _ in range(n + 1)]
+    P = [['' for _ in range(m + 1)] for _ in range(n + 1)]
+
+    # Initializing edges for Global Alignment (Needleman-Wunsch)
+    # Local alignment leaves edges as 0.
+    if globloc == "global":
+        for i in range(1, n + 1):
+            F[i][0] = i * gap
+            P[i][0] = 'u'
+        for j in range(1, m + 1):
+            F[0][j] = j * gap
+            P[0][j] = 'l'
+
+    # Nested loops to fill the grid
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            char1, char2 = seq1[i-1], seq2[j-1]
+            # Look up the score for these two proteins in PAM250
+            match_score = matrix.get(char1 + char2, matrix.get(char2 + char1, 0))
+            
+            # Calculate 3 possible paths to this cell
+            diag = F[i-1][j-1] + match_score
+            up = F[i-1][j] + gap
+            left = F[i][j-1] + gap
+            
+            if globloc == "global":
+                F[i][j] = max(diag, up, left) # Can be negative
+            else: # local alignment
+                F[i][j] = max(0, diag, up, left) # Floor is 0 (Smith-Waterman)
+
+            # Record which path gave the best score (the Pointer)
+            if F[i][j] == 0 and globloc == "local":
+                P[i][j] = '' # End of local alignment segment
+            elif F[i][j] == diag:
+                P[i][j] = 'd'
+            elif F[i][j] == up:
+                P[i][j] = 'u'
+            else:
+                P[i][j] = 'l'
+                
+    return F, P
+
+def main():
+    # 2a) Handle Command Line Input (e.g., 'python script.py global')
+    if len(sys.argv) != 2:
+        print("Error: Please provide exactly one argument: 'global' or 'local'.")
+        sys.exit(1)
+    
+    mode = sys.argv[1].lower()
+    if mode not in ["global", "local"]:
+        print(f"Error: '{mode}' is not a valid option.")
+        sys.exit(1)
+    
+    print(f"Option specified: {mode} alignment")
+
+    # 2b) Run the alignment and backtracking
+    F, P = align(target, template, PAM250_dict, gap, mode)
+    
+    if mode == "global":
+        a1, a2, score = global_backtrack(target, template, F, P)
+    else:
+        a1, a2, score = local_backtrack(target, template, F, P)
+    
+    # Display results
+    print("-" * 20)
+    print(f"Score: {score}")
+    print(f"Alignment 1: {a1}")
+    print(f"Alignment 2: {a2}")
+    print("-" * 20)
+
+if __name__ == "__main__":
+    main()
